@@ -1,8 +1,16 @@
 [
   {
     "inputs": [
-      { "internalType": "Pubkey", "name": "remoteBridge", "type": "bytes32" },
-      { "internalType": "address", "name": "twinBeacon", "type": "address" },
+      {
+        "internalType": "Pubkey",
+        "name": "remoteBridge",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "twinBeacon",
+        "type": "address"
+      },
       {
         "internalType": "address",
         "name": "crossChainErc20Factory",
@@ -17,31 +25,131 @@
     "stateMutability": "nonpayable",
     "type": "constructor"
   },
-  { "inputs": [], "name": "AlreadyInitialized", "type": "error" },
-  { "inputs": [], "name": "CumulativeDepositExceedsU64", "type": "error" },
-  { "inputs": [], "name": "EmptyMMR", "type": "error" },
-  { "inputs": [], "name": "IncorrectRemoteToken", "type": "error" },
-  { "inputs": [], "name": "InvalidInitialization", "type": "error" },
-  { "inputs": [], "name": "InvalidMessage", "type": "error" },
-  { "inputs": [], "name": "InvalidMsgValue", "type": "error" },
-  { "inputs": [], "name": "InvalidSerializedAccountLength", "type": "error" },
-  { "inputs": [], "name": "LeafIndexOutOfBounds", "type": "error" },
-  { "inputs": [], "name": "LeafNotFound", "type": "error" },
-  { "inputs": [], "name": "NewOwnerIsZeroAddress", "type": "error" },
-  { "inputs": [], "name": "NoHandoverRequest", "type": "error" },
-  { "inputs": [], "name": "NotInitializing", "type": "error" },
-  { "inputs": [], "name": "Paused", "type": "error" },
-  { "inputs": [], "name": "Reentrancy", "type": "error" },
-  { "inputs": [], "name": "SenderIsNotEntrypoint", "type": "error" },
-  { "inputs": [], "name": "SerializedMessageTooBig", "type": "error" },
-  { "inputs": [], "name": "SiblingNodeOutOfBounds", "type": "error" },
-  { "inputs": [], "name": "TooManyAccounts", "type": "error" },
-  { "inputs": [], "name": "TooManyInstructions", "type": "error" },
-  { "inputs": [], "name": "TooManySignatures", "type": "error" },
-  { "inputs": [], "name": "Unauthorized", "type": "error" },
-  { "inputs": [], "name": "WrappedSplRouteNotRegistered", "type": "error" },
-  { "inputs": [], "name": "ZeroAddress", "type": "error" },
-  { "inputs": [], "name": "ZeroAmount", "type": "error" },
+  {
+    "inputs": [],
+    "name": "AlreadyInitialized",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "CumulativeDepositExceedsU64",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "EmptyMMR",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "IncorrectRemoteToken",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidInitialization",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidMessage",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidMsgValue",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidSerializedAccountLength",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "LeafIndexOutOfBounds",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "LeafNotFound",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NewOwnerIsZeroAddress",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NoHandoverRequest",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "NotInitializing",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "Paused",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "Reentrancy",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "SenderIsNotEntrypoint",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "SerializedMessageTooBig",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "SiblingNodeOutOfBounds",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "TooManyAccounts",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "TooManyInstructions",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "TooManySignatures",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "Unauthorized",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "WrappedSplRouteNotRegistered",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ZeroAddress",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ZeroAmount",
+    "type": "error"
+  },
   {
     "anonymous": false,
     "inputs": [
@@ -91,9 +199,21 @@
       },
       {
         "components": [
-          { "internalType": "uint64", "name": "nonce", "type": "uint64" },
-          { "internalType": "address", "name": "sender", "type": "address" },
-          { "internalType": "bytes", "name": "data", "type": "bytes" }
+          {
+            "internalType": "uint64",
+            "name": "nonce",
+            "type": "uint64"
+          },
+          {
+            "internalType": "address",
+            "name": "sender",
+            "type": "address"
+          },
+          {
+            "internalType": "bytes",
+            "name": "data",
+            "type": "bytes"
+          }
         ],
         "indexed": false,
         "internalType": "struct Message",
@@ -265,35 +385,65 @@
   {
     "inputs": [],
     "name": "BRIDGE_VALIDATOR",
-    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "CROSS_CHAIN_ERC20_FACTORY",
-    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "GUARDIAN_ROLE",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "REMOTE_BRIDGE",
-    "outputs": [{ "internalType": "Pubkey", "name": "", "type": "bytes32" }],
+    "outputs": [
+      {
+        "internalType": "Pubkey",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "TWIN_BEACON",
-    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
@@ -306,11 +456,31 @@
             "name": "outgoingMessagePubkey",
             "type": "bytes32"
           },
-          { "internalType": "uint64", "name": "nonce", "type": "uint64" },
-          { "internalType": "Pubkey", "name": "sender", "type": "bytes32" },
-          { "internalType": "uint64", "name": "gasLimit", "type": "uint64" },
-          { "internalType": "enum MessageType", "name": "ty", "type": "uint8" },
-          { "internalType": "bytes", "name": "data", "type": "bytes" }
+          {
+            "internalType": "uint64",
+            "name": "nonce",
+            "type": "uint64"
+          },
+          {
+            "internalType": "Pubkey",
+            "name": "sender",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint64",
+            "name": "gasLimit",
+            "type": "uint64"
+          },
+          {
+            "internalType": "enum MessageType",
+            "name": "ty",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes",
+            "name": "data",
+            "type": "bytes"
+          }
         ],
         "internalType": "struct IncomingMessage",
         "name": "message",
@@ -326,13 +496,21 @@
     "inputs": [
       {
         "components": [
-          { "internalType": "Pubkey", "name": "programId", "type": "bytes32" },
+          {
+            "internalType": "Pubkey",
+            "name": "programId",
+            "type": "bytes32"
+          },
           {
             "internalType": "bytes[]",
             "name": "serializedAccounts",
             "type": "bytes[]"
           },
-          { "internalType": "bytes", "name": "data", "type": "bytes" }
+          {
+            "internalType": "bytes",
+            "name": "data",
+            "type": "bytes"
+          }
         ],
         "internalType": "struct Ix[]",
         "name": "ixs",
@@ -358,8 +536,16 @@
             "name": "remoteToken",
             "type": "bytes32"
           },
-          { "internalType": "bytes32", "name": "to", "type": "bytes32" },
-          { "internalType": "uint64", "name": "remoteAmount", "type": "uint64" }
+          {
+            "internalType": "bytes32",
+            "name": "to",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint64",
+            "name": "remoteAmount",
+            "type": "uint64"
+          }
         ],
         "internalType": "struct Transfer",
         "name": "transfer",
@@ -367,13 +553,21 @@
       },
       {
         "components": [
-          { "internalType": "Pubkey", "name": "programId", "type": "bytes32" },
+          {
+            "internalType": "Pubkey",
+            "name": "programId",
+            "type": "bytes32"
+          },
           {
             "internalType": "bytes[]",
             "name": "serializedAccounts",
             "type": "bytes[]"
           },
-          { "internalType": "bytes", "name": "data", "type": "bytes" }
+          {
+            "internalType": "bytes",
+            "name": "data",
+            "type": "bytes"
+          }
         ],
         "internalType": "struct Ix[]",
         "name": "ixs",
@@ -394,7 +588,11 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "pendingOwner", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "pendingOwner",
+        "type": "address"
+      }
     ],
     "name": "completeOwnershipHandover",
     "outputs": [],
@@ -403,30 +601,62 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "localToken", "type": "address" },
-      { "internalType": "Pubkey", "name": "remoteToken", "type": "bytes32" }
+      {
+        "internalType": "address",
+        "name": "localToken",
+        "type": "address"
+      },
+      {
+        "internalType": "Pubkey",
+        "name": "remoteToken",
+        "type": "bytes32"
+      }
     ],
     "name": "deposits",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "bytes32", "name": "messageHash", "type": "bytes32" }
+      {
+        "internalType": "bytes32",
+        "name": "messageHash",
+        "type": "bytes32"
+      }
     ],
     "name": "failures",
-    "outputs": [{ "internalType": "bool", "name": "failure", "type": "bool" }],
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "failure",
+        "type": "bool"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "uint64", "name": "leafIndex", "type": "uint64" }
+      {
+        "internalType": "uint64",
+        "name": "leafIndex",
+        "type": "uint64"
+      }
     ],
     "name": "generateProof",
     "outputs": [
-      { "internalType": "bytes32[]", "name": "proof", "type": "bytes32[]" }
+      {
+        "internalType": "bytes32[]",
+        "name": "proof",
+        "type": "bytes32[]"
+      }
     ],
     "stateMutability": "view",
     "type": "function"
@@ -440,11 +670,31 @@
             "name": "outgoingMessagePubkey",
             "type": "bytes32"
           },
-          { "internalType": "uint64", "name": "nonce", "type": "uint64" },
-          { "internalType": "Pubkey", "name": "sender", "type": "bytes32" },
-          { "internalType": "uint64", "name": "gasLimit", "type": "uint64" },
-          { "internalType": "enum MessageType", "name": "ty", "type": "uint8" },
-          { "internalType": "bytes", "name": "data", "type": "bytes" }
+          {
+            "internalType": "uint64",
+            "name": "nonce",
+            "type": "uint64"
+          },
+          {
+            "internalType": "Pubkey",
+            "name": "sender",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint64",
+            "name": "gasLimit",
+            "type": "uint64"
+          },
+          {
+            "internalType": "enum MessageType",
+            "name": "ty",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes",
+            "name": "data",
+            "type": "bytes"
+          }
         ],
         "internalType": "struct IncomingMessage",
         "name": "message",
@@ -452,37 +702,73 @@
       }
     ],
     "name": "getMessageHash",
-    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
     "stateMutability": "pure",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "getNextNonce",
-    "outputs": [{ "internalType": "uint64", "name": "", "type": "uint64" }],
+    "outputs": [
+      {
+        "internalType": "uint64",
+        "name": "",
+        "type": "uint64"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "Pubkey", "name": "sender", "type": "bytes32" }
+      {
+        "internalType": "Pubkey",
+        "name": "sender",
+        "type": "bytes32"
+      }
     ],
     "name": "getPredictedTwinAddress",
-    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "getRoot",
-    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "user", "type": "address" },
-      { "internalType": "uint256", "name": "roles", "type": "uint256" }
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "roles",
+        "type": "uint256"
+      }
     ],
     "name": "grantRoles",
     "outputs": [],
@@ -491,28 +777,64 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "user", "type": "address" },
-      { "internalType": "uint256", "name": "roles", "type": "uint256" }
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "roles",
+        "type": "uint256"
+      }
     ],
     "name": "hasAllRoles",
-    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "user", "type": "address" },
-      { "internalType": "uint256", "name": "roles", "type": "uint256" }
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "roles",
+        "type": "uint256"
+      }
     ],
     "name": "hasAnyRole",
-    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "owner", "type": "address" },
-      { "internalType": "address[]", "name": "guardians", "type": "address[]" }
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      },
+      {
+        "internalType": "address[]",
+        "name": "guardians",
+        "type": "address[]"
+      }
     ],
     "name": "initialize",
     "outputs": [],
@@ -523,18 +845,30 @@
     "inputs": [],
     "name": "owner",
     "outputs": [
-      { "internalType": "address", "name": "result", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "result",
+        "type": "address"
+      }
     ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "pendingOwner", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "pendingOwner",
+        "type": "address"
+      }
     ],
     "name": "ownershipHandoverExpiresAt",
     "outputs": [
-      { "internalType": "uint256", "name": "result", "type": "uint256" }
+      {
+        "internalType": "uint256",
+        "name": "result",
+        "type": "uint256"
+      }
     ],
     "stateMutability": "view",
     "type": "function"
@@ -542,7 +876,13 @@
   {
     "inputs": [],
     "name": "paused",
-    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
@@ -555,11 +895,31 @@
             "name": "outgoingMessagePubkey",
             "type": "bytes32"
           },
-          { "internalType": "uint64", "name": "nonce", "type": "uint64" },
-          { "internalType": "Pubkey", "name": "sender", "type": "bytes32" },
-          { "internalType": "uint64", "name": "gasLimit", "type": "uint64" },
-          { "internalType": "enum MessageType", "name": "ty", "type": "uint8" },
-          { "internalType": "bytes", "name": "data", "type": "bytes" }
+          {
+            "internalType": "uint64",
+            "name": "nonce",
+            "type": "uint64"
+          },
+          {
+            "internalType": "Pubkey",
+            "name": "sender",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint64",
+            "name": "gasLimit",
+            "type": "uint64"
+          },
+          {
+            "internalType": "enum MessageType",
+            "name": "ty",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes",
+            "name": "data",
+            "type": "bytes"
+          }
         ],
         "internalType": "struct IncomingMessage[]",
         "name": "messages",
@@ -580,7 +940,11 @@
   },
   {
     "inputs": [
-      { "internalType": "uint256", "name": "roles", "type": "uint256" }
+      {
+        "internalType": "uint256",
+        "name": "roles",
+        "type": "uint256"
+      }
     ],
     "name": "renounceRoles",
     "outputs": [],
@@ -596,8 +960,16 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "user", "type": "address" },
-      { "internalType": "uint256", "name": "roles", "type": "uint256" }
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "roles",
+        "type": "uint256"
+      }
     ],
     "name": "revokeRoles",
     "outputs": [],
@@ -606,27 +978,55 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "user", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
     ],
     "name": "rolesOf",
     "outputs": [
-      { "internalType": "uint256", "name": "roles", "type": "uint256" }
+      {
+        "internalType": "uint256",
+        "name": "roles",
+        "type": "uint256"
+      }
     ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "localToken", "type": "address" },
-      { "internalType": "Pubkey", "name": "remoteToken", "type": "bytes32" }
+      {
+        "internalType": "address",
+        "name": "localToken",
+        "type": "address"
+      },
+      {
+        "internalType": "Pubkey",
+        "name": "remoteToken",
+        "type": "bytes32"
+      }
     ],
     "name": "scalars",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "bool", "name": "isPaused", "type": "bool" }],
+    "inputs": [
+      {
+        "internalType": "bool",
+        "name": "isPaused",
+        "type": "bool"
+      }
+    ],
     "name": "setPaused",
     "outputs": [],
     "stateMutability": "nonpayable",
@@ -634,16 +1034,30 @@
   },
   {
     "inputs": [
-      { "internalType": "bytes32", "name": "messageHash", "type": "bytes32" }
+      {
+        "internalType": "bytes32",
+        "name": "messageHash",
+        "type": "bytes32"
+      }
     ],
     "name": "successes",
-    "outputs": [{ "internalType": "bool", "name": "success", "type": "bool" }],
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "success",
+        "type": "bool"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "newOwner", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
     ],
     "name": "transferOwnership",
     "outputs": [],
@@ -652,11 +1066,19 @@
   },
   {
     "inputs": [
-      { "internalType": "Pubkey", "name": "owner", "type": "bytes32" }
+      {
+        "internalType": "Pubkey",
+        "name": "owner",
+        "type": "bytes32"
+      }
     ],
     "name": "twins",
     "outputs": [
-      { "internalType": "address", "name": "twinAddress", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "twinAddress",
+        "type": "address"
+      }
     ],
     "stateMutability": "view",
     "type": "function"

@@ -1,0 +1,101 @@
+type FailedToRelayMessage @entity(immutable: true) {
+  id: Bytes!
+  submitter: Bytes! # address
+  messageHash: Bytes! # bytes32
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Initialized @entity(immutable: true) {
+  id: Bytes!
+  version: BigInt! # uint64
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type MessageInitiated @entity(immutable: true) {
+  id: Bytes!
+  messageHash: Bytes! # bytes32
+  mmrRoot: Bytes! # bytes32
+  message_nonce: BigInt! # uint64
+  message_sender: Bytes! # address
+  message_data: Bytes! # bytes
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type MessageSuccessfullyRelayed @entity(immutable: true) {
+  id: Bytes!
+  submitter: Bytes! # address
+  messageHash: Bytes! # bytes32
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type OwnershipHandoverCanceled @entity(immutable: true) {
+  id: Bytes!
+  pendingOwner: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type OwnershipHandoverRequested @entity(immutable: true) {
+  id: Bytes!
+  pendingOwner: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type OwnershipTransferred @entity(immutable: true) {
+  id: Bytes!
+  oldOwner: Bytes! # address
+  newOwner: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type PauseSwitched @entity(immutable: true) {
+  id: Bytes!
+  paused: Boolean! # bool
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type RolesUpdated @entity(immutable: true) {
+  id: Bytes!
+  user: Bytes! # address
+  roles: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type TransferFinalized @entity(immutable: true) {
+  id: Bytes!
+  localToken: Bytes! # address
+  remoteToken: Bytes! # bytes32
+  to: Bytes! # address
+  amount: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type TransferInitialized @entity(immutable: true) {
+  id: Bytes!
+  localToken: Bytes! # address
+  remoteToken: Bytes! # bytes32
+  to: Bytes! # bytes32
+  amount: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}

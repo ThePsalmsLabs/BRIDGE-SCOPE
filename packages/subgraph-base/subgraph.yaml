@@ -54,3 +54,43 @@ dataSources:
         - event: TransferInitialized(address,bytes32,bytes32,uint256)
           handler: handleTransferInitialized
       file: ./src/bridge.ts
+  - kind: ethereum
+    name: BridgeValidator
+    network: base
+    source:
+      address: "0xAF24c1c24Ff3BF1e6D882518120fC25442d6794B"
+      abi: BridgeValidator
+      startBlock: 23140000
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - MessageApproved
+      abis:
+        - name: BridgeValidator
+          file: ./abis/BridgeValidator.json
+      eventHandlers:
+        - event: MessageApproved(indexed bytes32,bytes[])
+          handler: handleMessageApproved
+      file: ./src/validator.ts
+  - kind: ethereum
+    name: CrossChainFactory
+    network: base
+    source:
+      address: "0xDD56781d0509650f8C2981231B6C917f2D56781d"
+      abi: CrossChainFactory
+      startBlock: 23140000
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - TwinCreated
+      abis:
+        - name: CrossChainFactory
+          file: ./abis/CrossChainFactory.json
+      eventHandlers:
+        - event: TwinCreated(indexed address,address,bytes32,address)
+          handler: handleTwinCreated
+      file: ./src/factory.ts

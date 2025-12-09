@@ -124,12 +124,27 @@ async function aggregateByDapp(transfers: RawTransfer[]) {
   return map;
 }
 
+function asAggMap(
+  agg: unknown
+): Map<
+  string,
+  {
+    volume: number;
+    count: number;
+    series: Map<number, { volume: number; count: number }>;
+  }
+> {
+  if (agg instanceof Map) return agg;
+  if (!agg || typeof agg !== 'object') return new Map();
+  return new Map(Object.entries(agg as Record<string, any>).map(([k, v]) => [k, v]));
+}
+
 export const dappRouter = createTRPCRouter({
   list: publicProcedure
     .input(z.object({ limit: z.number().min(1).max(50).default(10) }).optional())
     .query(async ({ input }) => {
       const transfers = await fetchRecentTransfers('7d');
-      const agg = await aggregateByDapp(transfers);
+      const agg = asAggMap(await aggregateByDapp(transfers));
 
       const registry = getDapps();
       const registryAddressesSet = new Set(registryAddresses());
@@ -174,7 +189,7 @@ export const dappRouter = createTRPCRouter({
     if (!dapp) return null;
     const addrs = (dapp.contracts ?? []).filter((c) => c.chain === 'BASE').map((c) => c.address.toLowerCase());
     const transfers = await fetchDappTransfers(addrs, '30d');
-    const agg = await aggregateByDapp(transfers);
+    const agg = asAggMap(await aggregateByDapp(transfers));
     const volumeUsd = addrs.reduce((sum, addr) => sum + (agg.get(addr)?.volume ?? 0), 0);
     const transfersCount = addrs.reduce((sum, addr) => sum + (agg.get(addr)?.count ?? 0), 0);
     return { ...dapp, volumeUsd, transfers: transfersCount };
@@ -193,7 +208,7 @@ export const dappRouter = createTRPCRouter({
 
       const addrs = (dapp.contracts ?? []).filter((c) => c.chain === 'BASE').map((c) => c.address.toLowerCase());
       const transfers = await fetchDappTransfers(addrs, input.timeframe);
-      const agg = await aggregateByDapp(transfers);
+      const agg = asAggMap(await aggregateByDapp(transfers));
       const volumeUsd = addrs.reduce((sum, addr) => sum + (agg.get(addr)?.volume ?? 0), 0);
       const transfersCount = addrs.reduce((sum, addr) => sum + (agg.get(addr)?.count ?? 0), 0);
 

@@ -71,15 +71,15 @@ dataSources:
         - name: BridgeValidator
           file: ./abis/BridgeValidator.json
       eventHandlers:
-        - event: MessageApproved(indexed bytes32,bytes[])
-          handler: handleMessageApproved
+        - event: MessageRegistered(indexed bytes32,indexed bytes32)
+          handler: handleMessageRegistered
       file: ./src/validator.ts
   - kind: ethereum
-    name: CrossChainFactory
+    name: CrossChainERC20Factory
     network: base
     source:
       address: "0xDD56781d0509650f8C2981231B6C917f2D56781d"
-      abi: CrossChainFactory
+      abi: CrossChainERC20Factory
       startBlock: 23140000
     mapping:
       kind: ethereum/events
@@ -88,9 +88,9 @@ dataSources:
       entities:
         - TwinCreated
       abis:
-        - name: CrossChainFactory
-          file: ./abis/CrossChainFactory.json
+        - name: CrossChainERC20Factory
+          file: ./abis/CrossChainERC20Factory.json
       eventHandlers:
-        - event: TwinCreated(indexed address,address,bytes32,address)
-          handler: handleTwinCreated
+        - event: CrossChainERC20Created(indexed address,indexed bytes32,address)
+          handler: handleCrossChainERC20Created
       file: ./src/factory.ts

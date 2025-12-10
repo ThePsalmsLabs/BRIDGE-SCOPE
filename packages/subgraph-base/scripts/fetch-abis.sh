@@ -150,18 +150,17 @@ EOF
 ]
 EOF
       ;;
-    CrossChainFactory)
+    CrossChainERC20Factory)
       cat > "${ABI_DIR}/${name}.json" <<'EOF'
 [
   {
     "anonymous": false,
     "inputs": [
-      { "indexed": true, "name": "owner", "type": "address" },
-      { "indexed": false, "name": "twin", "type": "address" },
-      { "indexed": false, "name": "remoteToken", "type": "bytes32" },
-      { "indexed": false, "name": "localToken", "type": "address" }
+      { "indexed": true, "name": "localToken", "type": "address" },
+      { "indexed": true, "name": "remoteToken", "type": "bytes32" },
+      { "indexed": false, "name": "deployer", "type": "address" }
     ],
-    "name": "TwinCreated",
+    "name": "CrossChainERC20Created",
     "type": "event"
   }
 ]
@@ -178,7 +177,7 @@ EOF
 # Addresses on Base mainnet
 fetch_or_fallback "0x3eff766C76a1be2Ce1aCF2B69c78bCae257D5188" "Bridge"
 fetch_or_fallback "0xAF24c1c24Ff3BF1e6D882518120fC25442d6794B" "BridgeValidator"
-fetch_or_fallback "0xDD56781d0509650f8C2981231B6C917f2D56781d" "CrossChainFactory"
+fetch_or_fallback "0xDD56781d0509650f8C2981231B6C917f2D56781d" "CrossChainERC20Factory"
 
 echo "Done."
 

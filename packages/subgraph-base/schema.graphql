@@ -100,21 +100,20 @@ type TransferInitialized @entity(immutable: true) {
   transactionHash: Bytes!
 }
 
-type MessageApproved @entity(immutable: true) {
+type MessageRegistered @entity(immutable: true) {
   id: Bytes!
   messageHash: Bytes! # bytes32
-  signatures: [Bytes!]!
+  outgoingMessagePubkey: Bytes! # bytes32
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
 }
 
-type TwinCreated @entity(immutable: true) {
+type CrossChainERC20Created @entity(immutable: true) {
   id: Bytes!
-  owner: Bytes! # address
-  twin: Bytes! # address
-  remoteToken: Bytes! # bytes32
   localToken: Bytes! # address
+  remoteToken: Bytes! # bytes32
+  deployer: Bytes! # address
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!

@@ -15,7 +15,7 @@ export function DappLeaderboard() {
     <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
       <div className="mb-3 flex items-center justify-between">
         <h3 className="text-lg font-semibold">Top dApps</h3>
-        <span className="text-xs text-muted-foreground">Past 24h</span>
+        <span className="text-xs text-muted-foreground">Past 7d · subgraph</span>
       </div>
       <div className="space-y-3">
         {isLoading && <p className="text-sm text-muted-foreground">Loading leaderboard...</p>}

@@ -27,6 +27,34 @@ export const RELAYER_ADDRESSES = {
 
 export const DAPP_REGISTRY: Dapp[] = [
   {
+    id: 'aerodrome',
+    name: 'Aerodrome',
+    category: 'DEX',
+    contracts: [
+      { chain: 'BASE', address: '0x420DD381b31aEf6683db6B902084cB0FFECe40Da', role: 'router' },
+      { chain: 'BASE', address: '0x827922686190790b37229fd06084350E74485b72', role: 'factory' },
+      { chain: 'BASE', address: '0x940181a94A35A4569E4529A3CDfB74e38FD98631', role: 'token' },
+    ],
+  },
+  {
+    id: 'uniswap',
+    name: 'Uniswap',
+    category: 'DEX',
+    contracts: [
+      { chain: 'BASE', address: '0x198EF79F1F515F02dFE9e3115eD9fC07183f02fC', role: 'universal_router' },
+      { chain: 'BASE', address: '0x33128a8fC17869897dcE68Ed026d694621f6FDfD', role: 'factory' },
+    ],
+  },
+  {
+    id: 'moonwell',
+    name: 'Moonwell',
+    category: 'LENDING',
+    contracts: [
+      { chain: 'BASE', address: '0xfBb21d0380beE3312B33c4353c8936a0F13EF26C', role: 'comptroller' },
+      { chain: 'BASE', address: '0xA88594D404727625A9437C3f886C7643872296AE', role: 'token' },
+    ],
+  },
+  {
     id: 'zora',
     name: 'Zora',
     category: 'NFT_MARKETPLACE',
@@ -35,30 +63,37 @@ export const DAPP_REGISTRY: Dapp[] = [
     ],
   },
   {
-    id: 'aerodrome',
-    name: 'Aerodrome',
-    category: 'DEX',
-    contracts: [
-      { chain: 'BASE', address: '0x420DD381b31aEf6683db6B902084cB0FFECe40Da', role: 'router' },
-      { chain: 'BASE', address: '0x827922686190790b37229fd06084350E74485b72', role: 'factory' },
-    ],
-  },
-  {
     id: 'virtuals',
-    name: 'Virtuals',
+    name: 'Virtuals Protocol',
     category: 'AI_AGENTS',
-    contracts: [{ chain: 'BASE', address: '0xVirtualsProtocol...', role: 'protocol' }],
+    contracts: [
+      { chain: 'BASE', address: '0x0b3e328455c4059eeb9e3f84b5543f74e24e7e1b', role: 'token' },
+    ],
   },
   {
     id: 'flaunch',
     name: 'Flaunch',
     category: 'LAUNCHPAD',
-    contracts: [{ chain: 'BASE', address: '0xFlaunchProtocol...', role: 'protocol' }],
+    contracts: [
+      { chain: 'BASE', address: '0x4dc442403e8c758425b93c59dc737da522f32640', role: 'fair_launch' },
+      { chain: 'BASE', address: '0x23321f11a6d44fd1ab790044fdfde5758c902fdc', role: 'position_manager' },
+    ],
   },
   {
-    id: 'relay',
-    name: 'Relay',
-    category: 'BRIDGE_AGGREGATOR',
-    contracts: [{ chain: 'BASE', address: '0xRelayProtocol...', role: 'protocol' }],
+    id: 'friendtech',
+    name: 'Friend.tech',
+    category: 'SOCIAL',
+    contracts: [
+      { chain: 'BASE', address: '0xcf205808ed36593aa40a44f10c7f7c2f67d4a4d4', role: 'shares' },
+      { chain: 'BASE', address: '0x0bd4887f7d41b35cd75dff9ffee2856106f86670', role: 'token' },
+    ],
+  },
+  {
+    id: 'morpho',
+    name: 'Morpho',
+    category: 'LENDING',
+    contracts: [
+      { chain: 'BASE', address: '0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb', role: 'morpho_blue' },
+    ],
   },
 ];

@@ -1,79 +1,213 @@
 import { z } from 'zod';
-
-import { DAPP_REGISTRY, SUBGRAPH_URLS } from '@/lib/constants';
-import { fetchSubgraph } from '@/lib/subgraph';
-import { fetchDappLeaderboard } from '@/lib/solana-store';
-import { getDappById, getDapps } from '@/lib/registry';
-import type { Dapp } from '@/types/dapp';
+import { db } from '@/lib/db';
+import { cache, CacheKeys, CacheTTL } from '@/lib/cache';
 import { createTRPCRouter, publicProcedure } from '../trpc';
+import { resolveContractName } from '@/lib/onchainMetadata';
 
-type TimeseriesPoint = { timestamp: number; value: number };
-
-const mockVolumes: Record<string, number> = {
-  zora: 12_400_000,
-  aerodrome: 9_100_000,
-  virtuals: 4_500_000,
-  flaunch: 2_200_000,
-  relay: 1_900_000,
+const TIMEFRAMES: Record<'24h' | '7d' | '30d' | 'all', number | null> = {
+  '24h': 24 * 60 * 60,
+  '7d': 7 * 24 * 60 * 60,
+  '30d': 30 * 24 * 60 * 60,
+  all: null,
 };
 
-const mockTransfers: Record<string, number> = {
-  zora: 8214,
-  aerodrome: 6002,
-  virtuals: 2400,
-  flaunch: 1500,
-  relay: 1100,
-};
+/**
+ * Get dApp metrics for a timeframe
+ */
+async function getDappMetrics(dappId: string, timeframe: '24h' | '7d' | '30d' | 'all') {
+  const seconds = TIMEFRAMES[timeframe];
+  const fromTimestamp = seconds ? new Date(Date.now() - seconds * 1000) : new Date(0);
 
-function attachMetrics(dapps: Dapp[]): Dapp[] {
-  return dapps.map((dapp) => ({
-    ...dapp,
-    volumeUsd: mockVolumes[dapp.id] ?? 0,
-    transfers: mockTransfers[dapp.id] ?? 0,
-  }));
+  const metrics = await db.transfer.aggregate({
+    where: {
+      dappId,
+      blockTimestamp: { gte: fromTimestamp },
+      amountUsd: { not: null },
+      status: 'COMPLETED',
+    },
+    _sum: { amountUsd: true },
+    _count: { id: true },
+  });
+
+  return {
+    volumeUsd: Number(metrics._sum.amountUsd) || 0,
+    transfers: metrics._count.id,
+  };
 }
 
-function generateSeries(days = 7, base = 1_000_000): TimeseriesPoint[] {
-  const now = Date.now();
-  return Array.from({ length: days }).map((_, idx) => ({
-    timestamp: now - idx * 24 * 60 * 60 * 1000,
-    value: Math.round(base * (1 + Math.sin(idx / 2) * 0.15)),
-  }));
+/**
+ * Build time series for a dApp
+ */
+async function buildDappSeries(dappId: string, timeframe: '24h' | '7d' | '30d' | 'all') {
+  const days = timeframe === '30d' ? 30 : timeframe === '7d' ? 7 : 1;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const series = [];
+
+  for (let i = days - 1; i >= 0; i--) {
+    const date = new Date(today);
+    date.setDate(date.getDate() - i);
+    const nextDate = new Date(date);
+    nextDate.setDate(nextDate.getDate() + 1);
+
+    const dayMetrics = await db.transfer.aggregate({
+      where: {
+        dappId,
+        blockTimestamp: {
+          gte: date,
+          lt: nextDate,
+        },
+        amountUsd: { not: null },
+        status: 'COMPLETED',
+      },
+      _sum: { amountUsd: true },
+      _count: { id: true },
+    });
+
+    series.push({
+      timestamp: date.getTime(),
+      value: Number(dayMetrics._sum.amountUsd) || 0,
+      transfers: dayMetrics._count.id,
+    });
+  }
+
+  return series;
 }
 
 export const dappRouter = createTRPCRouter({
+  /**
+   * List all dApps with their metrics
+   */
   list: publicProcedure
     .input(z.object({ limit: z.number().min(1).max(50).default(10) }).optional())
     .query(async ({ input }) => {
-      const solanaLeaderboard = await fetchDappLeaderboard(input?.limit ?? 10);
-      const dappsWithLive = attachMetrics(getDapps()).map((dapp) => {
-        const live = solanaLeaderboard.find((row) => row.attribution_dapp === dapp.id);
-        return live
-          ? { ...dapp, transfers: Number(live.transfers) }
-          : dapp;
+      const limit = input?.limit ?? 10;
+
+      // Get all dApps from database
+      const dapps = await db.dapp.findMany({
+        include: {
+          contracts: {
+            where: { chain: 'BASE', isActive: true },
+          },
+        },
       });
 
-      const dapps = dappsWithLive.sort((a, b) => (b.volumeUsd ?? 0) - (a.volumeUsd ?? 0));
+      // Get metrics for last 7 days
+      const fromTimestamp = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
-      const limited = input?.limit ? dapps.slice(0, input.limit) : dapps;
+      const dappsWithMetrics = await Promise.all(
+        dapps.map(async (dapp) => {
+          const metrics = await db.transfer.aggregate({
+            where: {
+              dappId: dapp.id,
+              blockTimestamp: { gte: fromTimestamp },
+              amountUsd: { not: null },
+              status: 'COMPLETED',
+            },
+            _sum: { amountUsd: true },
+            _count: { id: true },
+          });
 
-      if (SUBGRAPH_URLS.BASE) {
-        // placeholder: would enrich with live subgraph data
-        void SUBGRAPH_URLS.BASE;
-      }
+          return {
+            ...dapp,
+            volumeUsd: Number(metrics._sum.amountUsd) || 0,
+            transfers: metrics._count.id,
+            contracts: dapp.contracts.map((c) => ({
+              chain: c.chain,
+              address: c.address,
+              role: c.role,
+            })),
+          };
+        })
+      );
 
-      return limited;
+      // Get unknown contracts (high volume but not attributed)
+      const unknownTransfers = await db.transfer.groupBy({
+        by: ['to'],
+        where: {
+          dappId: null,
+          blockTimestamp: { gte: fromTimestamp },
+          amountUsd: { not: null },
+          status: 'COMPLETED',
+        },
+        _sum: { amountUsd: true },
+        _count: { id: true },
+        orderBy: {
+          _sum: {
+            amountUsd: 'desc',
+          },
+        },
+        take: 10, // Top 10 unknown contracts
+      });
+
+      // Resolve names for unknown contracts
+      const unknownDapps = await Promise.all(
+        unknownTransfers.map(async (transfer) => {
+          const address = transfer.to;
+          const name = await resolveContractName(address);
+
+          return {
+            id: `unknown-${address}`,
+            name: name || `Unknown ${address.slice(0, 6)}...${address.slice(-4)}`,
+            category: 'OTHER' as const,
+            volumeUsd: Number(transfer._sum.amountUsd) || 0,
+            transfers: transfer._count.id,
+            contracts: [
+              {
+                chain: 'BASE' as const,
+                address,
+                role: null,
+              },
+            ],
+            isVerified: false,
+          };
+        })
+      );
+
+      // Combine and sort by volume
+      const combined = [...dappsWithMetrics, ...unknownDapps].sort(
+        (a, b) => b.volumeUsd - a.volumeUsd
+      );
+
+      return combined.slice(0, limit);
     }),
 
-  byId: publicProcedure.input(z.object({ id: z.string() })).query(({ input }) => {
-    const dapp = getDappById(input.id);
-    if (!dapp) {
-      return null;
-    }
-    const withMetrics = attachMetrics([dapp])[0];
-    return withMetrics;
-  }),
+  /**
+   * Get single dApp details
+   */
+  byId: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ input }) => {
+      const dapp = await db.dapp.findUnique({
+        where: { id: input.id },
+        include: {
+          contracts: {
+            where: { isActive: true },
+          },
+        },
+      });
 
+      if (!dapp) return null;
+
+      // Get 30-day metrics
+      const metrics = await getDappMetrics(input.id, '30d');
+
+      return {
+        ...dapp,
+        volumeUsd: metrics.volumeUsd,
+        transfers: metrics.transfers,
+        contracts: dapp.contracts.map((c) => ({
+          chain: c.chain,
+          address: c.address,
+          role: c.role,
+        })),
+      };
+    }),
+
+  /**
+   * Get dApp activity over time
+   */
   activity: publicProcedure
     .input(
       z.object({
@@ -82,29 +216,100 @@ export const dappRouter = createTRPCRouter({
       })
     )
     .query(async ({ input }) => {
-      const dapp = getDappById(input.id);
-      if (!dapp) {
-        return null;
+      // Check cache
+      const cacheKey = CacheKeys.dappStats(input.id, input.timeframe);
+      const cached = await cache.get(cacheKey);
+
+      if (cached) {
+        return JSON.parse(cached);
       }
 
-      // Placeholder: sample data; swap to subgraph query once endpoints are configured.
-      const baseVolume = mockVolumes[dapp.id] ?? 0;
-      const days = input.timeframe === '24h' ? 1 : input.timeframe === '7d' ? 7 : 30;
-      const series = generateSeries(days, baseVolume / Math.max(days, 1));
+      const dapp = await db.dapp.findUnique({
+        where: { id: input.id },
+      });
 
-      return {
-        dapp: attachMetrics([dapp])[0],
+      if (!dapp) return null;
+
+      // Get metrics
+      const metrics = await getDappMetrics(input.id, input.timeframe);
+
+      // Get unique users
+      const uniqueUsers = await db.transfer.findMany({
+        where: {
+          dappId: input.id,
+          blockTimestamp: {
+            gte: TIMEFRAMES[input.timeframe]
+              ? new Date(Date.now() - TIMEFRAMES[input.timeframe]! * 1000)
+              : new Date(0),
+          },
+          from: { not: null },
+          status: 'COMPLETED',
+        },
+        select: { from: true },
+        distinct: ['from'],
+      });
+
+      // Directional breakdown
+      const [baseToSolana, solanaToBase] = await Promise.all([
+        db.transfer.aggregate({
+          where: {
+            dappId: input.id,
+            direction: 'BASE_TO_SOLANA',
+            blockTimestamp: {
+              gte: TIMEFRAMES[input.timeframe]
+                ? new Date(Date.now() - TIMEFRAMES[input.timeframe]! * 1000)
+                : new Date(0),
+            },
+            amountUsd: { not: null },
+            status: 'COMPLETED',
+          },
+          _sum: { amountUsd: true },
+          _count: { id: true },
+        }),
+        db.transfer.aggregate({
+          where: {
+            dappId: input.id,
+            direction: 'SOLANA_TO_BASE',
+            blockTimestamp: {
+              gte: TIMEFRAMES[input.timeframe]
+                ? new Date(Date.now() - TIMEFRAMES[input.timeframe]! * 1000)
+                : new Date(0),
+            },
+            amountUsd: { not: null },
+            status: 'COMPLETED',
+          },
+          _sum: { amountUsd: true },
+          _count: { id: true },
+        }),
+      ]);
+
+      // Build time series
+      const timeseries = await buildDappSeries(input.id, input.timeframe);
+
+      const result = {
+        dapp,
         timeframe: input.timeframe,
         totals: {
-          volumeUsd: baseVolume,
-          transfers: mockTransfers[dapp.id] ?? 0,
-          uniqueUsers: Math.round((mockTransfers[dapp.id] ?? 0) * 0.35),
+          volumeUsd: metrics.volumeUsd,
+          transfers: metrics.transfers,
+          uniqueUsers: uniqueUsers.length,
         },
         directionBreakdown: {
-          baseToSolana: Math.round((mockTransfers[dapp.id] ?? 0) * 0.55),
-          solanaToBase: Math.round((mockTransfers[dapp.id] ?? 0) * 0.45),
+          baseToSolana: {
+            volume: Number(baseToSolana._sum.amountUsd) || 0,
+            count: baseToSolana._count.id,
+          },
+          solanaToBase: {
+            volume: Number(solanaToBase._sum.amountUsd) || 0,
+            count: solanaToBase._count.id,
+          },
         },
-        timeseries: series.reverse(),
+        timeseries,
       };
+
+      // Cache result
+      await cache.set(cacheKey, JSON.stringify(result), "EX", CacheTTL.DAPP_STATS);
+
+      return result;
     }),
 });

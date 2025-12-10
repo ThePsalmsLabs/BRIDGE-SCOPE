@@ -1,0 +1,276 @@
+// BaseBridgeScope Database Schema
+// Persistent storage for bridge analytics, pricing, and metadata
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================================================
+// TOKEN METADATA
+// ============================================================================
+
+model Token {
+  id            String   @id // Lowercase address as primary key
+  address       String   @unique
+  chain         Chain
+  symbol        String
+  name          String?
+  decimals      Int      @default(18)
+  logoUrl       String?
+  isVerified    Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  priceHistory  TokenPrice[]
+  transfersAsLocalToken Transfer[] @relation("LocalToken")
+
+  @@index([chain])
+  @@index([symbol])
+  @@map("tokens")
+}
+
+// ============================================================================
+// PRICE DATA
+// ============================================================================
+
+model TokenPrice {
+  id          String   @id @default(cuid())
+  tokenId     String
+  token       Token    @relation(fields: [tokenId], references: [id], onDelete: Cascade)
+
+  priceUsd    Decimal  @db.Decimal(20, 8)
+  source      PriceSource
+  timestamp   DateTime
+
+  // Metadata
+  volume24h   Decimal? @db.Decimal(20, 2)
+  marketCap   Decimal? @db.Decimal(20, 2)
+
+  createdAt   DateTime @default(now())
+
+  @@unique([tokenId, timestamp])
+  @@index([tokenId, timestamp(sort: Desc)])
+  @@index([timestamp])
+  @@map("token_prices")
+}
+
+// ============================================================================
+// BRIDGE TRANSFERS
+// ============================================================================
+
+model Transfer {
+  id              String   @id // Transaction hash + log index
+
+  // Core transfer data
+  transactionHash String
+  blockNumber     BigInt
+  blockTimestamp  DateTime
+  logIndex        Int
+
+  // Transfer details
+  direction       Direction
+  chain           Chain // Chain where event was emitted
+  status          TransferStatus
+
+  // Participants
+  from            String? // Sender address (if available)
+  to              String // Recipient/target contract
+
+  // Token & Amount
+  localToken      String
+  localTokenMeta  Token   @relation("LocalToken", fields: [localToken], references: [id], onDelete: Restrict)
+  remoteToken     String? // bytes32 on the other chain
+  amount          String // Raw amount as string (bigint)
+  amountNormalized Decimal @db.Decimal(30, 6) // Normalized by decimals
+
+  // USD Value (calculated at time of transfer)
+  amountUsd       Decimal? @db.Decimal(20, 2)
+  priceUsdAtTime  Decimal? @db.Decimal(20, 8)
+
+  // Attribution
+  dappId          String?
+  dapp            Dapp?    @relation(fields: [dappId], references: [id], onDelete: SetNull)
+  attributionConfidence Int? // 0-100
+  attributionMethod     String? // How it was attributed
+
+  // Metadata
+  messageHash     String?
+  relayer         String?
+  feeAmount       String? // Gas/fees paid
+  feeAmountUsd    Decimal? @db.Decimal(20, 2)
+
+  // Timestamps
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([transactionHash, logIndex])
+  @@index([blockTimestamp(sort: Desc)])
+  @@index([chain, blockTimestamp])
+  @@index([direction, blockTimestamp])
+  @@index([to, blockTimestamp])
+  @@index([dappId, blockTimestamp])
+  @@index([status])
+  @@map("transfers")
+}
+
+// ============================================================================
+// DAPP REGISTRY
+// ============================================================================
+
+model Dapp {
+  id          String   @id // Unique slug
+  name        String
+  category    DappCategory
+  description String?
+  logoUrl     String?
+  websiteUrl  String?
+
+  // Metadata
+  isVerified  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  contracts   DappContract[]
+  transfers   Transfer[]
+  stats       DappStats[]
+
+  @@map("dapps")
+}
+
+model DappContract {
+  id       String  @id @default(cuid())
+  dappId   String
+  dapp     Dapp    @relation(fields: [dappId], references: [id], onDelete: Cascade)
+
+  chain    Chain
+  address  String // Lowercase
+  role     String? // "router", "factory", etc.
+
+  isActive Boolean @default(true)
+  createdAt DateTime @default(now())
+
+  @@unique([chain, address])
+  @@index([dappId])
+  @@map("dapp_contracts")
+}
+
+// ============================================================================
+// AGGREGATED STATISTICS
+// ============================================================================
+
+model DappStats {
+  id       String   @id @default(cuid())
+  dappId   String
+  dapp     Dapp     @relation(fields: [dappId], references: [id], onDelete: Cascade)
+
+  // Time period
+  date     DateTime @db.Date
+  period   StatsPeriod
+
+  // Metrics
+  volumeUsd       Decimal @db.Decimal(20, 2) @default(0)
+  volumeToken     Decimal @db.Decimal(30, 6) @default(0)
+  transferCount   Int     @default(0)
+  uniqueUsers     Int     @default(0)
+  feesPaidUsd     Decimal @db.Decimal(20, 2) @default(0)
+
+  // Directional breakdown
+  baseToSolanaVolume  Decimal @db.Decimal(20, 2) @default(0)
+  baseToSolanaCount   Int     @default(0)
+  solanaToBaseVolume  Decimal @db.Decimal(20, 2) @default(0)
+  solanaToBaseCount   Int     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([dappId, date, period])
+  @@index([date, period])
+  @@map("dapp_stats")
+}
+
+model GlobalStats {
+  id       String   @id @default(cuid())
+
+  // Time period
+  date     DateTime @db.Date
+  period   StatsPeriod
+
+  // Metrics
+  volumeUsd       Decimal @db.Decimal(20, 2) @default(0)
+  transferCount   Int     @default(0)
+  uniqueUsers     Int     @default(0)
+  activeDapps     Int     @default(0)
+  feesPaidUsd     Decimal @db.Decimal(20, 2) @default(0)
+
+  // Directional breakdown
+  baseToSolanaVolume  Decimal @db.Decimal(20, 2) @default(0)
+  baseToSolanaCount   Int     @default(0)
+  solanaToBaseVolume  Decimal @db.Decimal(20, 2) @default(0)
+  solanaToBaseCount   Int     @default(0)
+
+  // Chain-specific
+  baseBlockHeight    BigInt?
+  solanaSlot         BigInt?
+  indexingLagSeconds Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([date, period])
+  @@index([date, period])
+  @@map("global_stats")
+}
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum Chain {
+  BASE
+  SOLANA
+}
+
+enum Direction {
+  BASE_TO_SOLANA
+  SOLANA_TO_BASE
+}
+
+enum TransferStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+enum DappCategory {
+  NFT_MARKETPLACE
+  DEX
+  AI_AGENTS
+  LAUNCHPAD
+  BRIDGE_AGGREGATOR
+  LENDING
+  SOCIAL
+  DEFI
+  GAMING
+  OTHER
+}
+
+enum PriceSource {
+  CHAINLINK
+  COINGECKO
+  PYTH
+  MANUAL
+  ESTIMATED
+}
+
+enum StatsPeriod {
+  HOURLY
+  DAILY
+  WEEKLY
+  MONTHLY
+}

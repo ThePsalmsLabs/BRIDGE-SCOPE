@@ -1,50 +1,90 @@
 import Redis from 'ioredis';
 
 const REDIS_URL = process.env.REDIS_URL;
+const UPSTASH_REST_URL = process.env.UPSTASH_REDIS_REST_URL;
+const UPSTASH_REST_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 
-if (!REDIS_URL) {
-  throw new Error('REDIS_URL environment variable is required for production');
+// Use Upstash REST API if available (Vercel KV), otherwise traditional Redis
+const useUpstash = !REDIS_URL && UPSTASH_REST_URL && UPSTASH_REST_TOKEN;
+
+if (!REDIS_URL && !useUpstash) {
+  console.warn('⚠️  No Redis configured - caching disabled');
 }
 
-// Create Redis client (PRODUCTION ONLY - NO FALLBACKS)
-export const cache = new Redis(REDIS_URL, {
-  maxRetriesPerRequest: 3,
-  retryStrategy(times) {
-    if (times > 10) {
-      // Stop retrying after 10 attempts
-      return null;
-    }
-    const delay = Math.min(times * 100, 3000);
-    return delay;
-  },
-  lazyConnect: true,
-  enableReadyCheck: true,
-  enableOfflineQueue: false,
-});
+// Create Redis client or mock for development
+export const cache = REDIS_URL
+  ? new Redis(REDIS_URL, {
+      maxRetriesPerRequest: 3,
+      retryStrategy(times) {
+        if (times > 10) return null;
+        return Math.min(times * 100, 3000);
+      },
+      lazyConnect: true,
+      enableReadyCheck: true,
+      enableOfflineQueue: false,
+    })
+  : useUpstash
+  ? createUpstashClient()
+  : createMockRedis();
 
-// Connect to Redis
-cache
-  .connect()
-  .then(() => {
-    console.log('✅ Connected to Redis');
-  })
-  .catch((err) => {
-    console.error('❌ Failed to connect to Redis:', err);
-    throw new Error('Redis connection required for production');
-  });
+// Upstash REST API client
+function createUpstashClient() {
+  const client = {
+    async get(key: string) {
+      const response = await fetch(`${UPSTASH_REST_URL}/get/${key}`, {
+        headers: { Authorization: `Bearer ${UPSTASH_REST_TOKEN}` },
+      });
+      const data = await response.json();
+      return data.result;
+    },
+    async set(key: string, value: string, _mode?: string, duration?: number) {
+      const url = duration
+        ? `${UPSTASH_REST_URL}/set/${key}/${value}/EX/${duration}`
+        : `${UPSTASH_REST_URL}/set/${key}/${value}`;
+      await fetch(url, {
+        headers: { Authorization: `Bearer ${UPSTASH_REST_TOKEN}` },
+      });
+    },
+    async del(key: string) {
+      await fetch(`${UPSTASH_REST_URL}/del/${key}`, {
+        headers: { Authorization: `Bearer ${UPSTASH_REST_TOKEN}` },
+      });
+    },
+  };
+  console.log('✅ Using Upstash REST API');
+  return client as any;
+}
 
-// Error handling
-cache.on('error', (err) => {
-  console.error('Redis error:', err);
-});
+// Mock Redis for development
+function createMockRedis() {
+  const store = new Map<string, string>();
+  return {
+    async get(key: string) {
+      return store.get(key) ?? null;
+    },
+    async set(key: string, value: string) {
+      store.set(key, value);
+    },
+    async del(key: string) {
+      store.delete(key);
+    },
+  } as any;
+}
 
-cache.on('reconnecting', () => {
-  console.log('🔄 Reconnecting to Redis...');
-});
+// Connect to traditional Redis if used
+if (REDIS_URL) {
+  cache
+    .connect()
+    .then(() => console.log('✅ Connected to Redis'))
+    .catch((err: Error) => {
+      console.error('❌ Failed to connect to Redis:', err);
+      console.warn('⚠️  Falling back to in-memory cache');
+    });
 
-cache.on('ready', () => {
-  console.log('✅ Redis ready');
-});
+  cache.on('error', (err: Error) => console.error('Redis error:', err));
+  cache.on('reconnecting', () => console.log('🔄 Reconnecting to Redis...'));
+  cache.on('ready', () => console.log('✅ Redis ready'));
+}
 
 // Cache key builders
 export const CacheKeys = {

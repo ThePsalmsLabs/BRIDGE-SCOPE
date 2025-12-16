@@ -188,7 +188,7 @@ export const dappRouter = createTRPCRouter({
         },
       });
 
-      if (!dapp) return null;
+    if (!dapp) return null;
 
       // Get 30-day metrics
       const metrics = await getDappMetrics(input.id, '30d');

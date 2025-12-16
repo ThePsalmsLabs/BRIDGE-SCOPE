@@ -1,12 +1,12 @@
 /**
  * Vercel Cron Job API Route
- * Syncs subgraph data to database every minute
+ * Syncs subgraph data to database daily (Vercel Hobby plan compatible)
  *
  * Configure in vercel.json:
  * {
  *   "crons": [{
  *     "path": "/api/cron/sync",
- *     "schedule": "* * * * *"
+ *     "schedule": "0 0 * * *"
  *   }]
  * }
  */
@@ -103,7 +103,7 @@ export async function GET(request: Request) {
     // Fetch new transfers from subgraph
     const transfers = await fetchSubgraphTransfers({
       since: Math.floor(since.getTime() / 1000),
-      limit: 100, // Process in batches
+      limit: 1000, // Process larger batches for daily sync
     });
 
     console.log(`📦 Found ${transfers.length} new transfers`);
